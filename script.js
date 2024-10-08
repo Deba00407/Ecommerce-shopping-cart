@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let totalPrice = 0;
     const baseURL = 'https://fakestoreapi.com/products';
 
+    let shoppingCart = JSON.parse(localStorage.getItem('cart')) || [];
+    displayCart();
+    shoppingCart.forEach(item => {
+        totalPrice += item.price * item.quantity;
+    });
+
     async function getProducts() {
         try {
             let response = await fetch(baseURL);
@@ -26,23 +32,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         cartItems.innerHTML = '';
-        shoppingCart.map(item => {
+        shoppingCart.forEach((item, index) => {
             let cartItem = document.createElement('div');
             cartItem.innerHTML = `
                 <div class="cart-item">
                     <span>${item.title} (x${item.quantity})</span>
+                    <div style = "display: flex; justify-content: center; align-items: center; gap: 5px">
                     <span style="float: right;">$${(item.price * item.quantity).toFixed(2)}</span>
+                    <span><button class="delete-btn " data-index="${index}"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="black"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></button></span>
+                    </div>
                 </div>
             `;
             cartItems.appendChild(cartItem);
         });
+
         if (totalPrice != 0)
             cartTotal.innerHTML = `Total Price: $${totalPrice.toFixed(2)}`;
+
+        // Add event listeners to delete buttons
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const index = event.target.closest('button').getAttribute('data-index');
+                totalPrice -= shoppingCart[index].price * shoppingCart[index].quantity;
+                shoppingCart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(shoppingCart));
+                displayCart();
+            });
+        });
     }
 
-    let shoppingCart = [];
     let productsList = await getProducts();
-    console.log(productsList);
     displayProductList();
 
     function displayProductList() {
@@ -77,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 totalPrice += product.price * quantity;
-                console.log(totalPrice);
+                localStorage.setItem('cart', JSON.stringify(shoppingCart));
                 displayCart();
             });
         });
@@ -89,7 +109,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('Thank you for shopping with us!');
         shoppingCart = [];
         totalPrice = 0;
+        localStorage.removeItem('cart');
         cartItems.innerHTML = 'Your cart is empty';
         cartTotal.innerHTML = '';
-    })
+    });
 });
