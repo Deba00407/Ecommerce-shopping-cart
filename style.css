@@ -110,3 +110,27 @@ button:focus {
 #cart-total{
     margin-top: 15px;
 }
+
+.deleteBtn {
+  background-color: white;
+  border-radius: 50%;
+  width: 50px; 
+  height: 50px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  overflow: hidden;
+}
+
+.deleteBtn svg {
+  background-size: contain;
+}
+
+
+.cart-item{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
